@@ -13,14 +13,14 @@ MAX_CONF = 10
 
 
 # Read DB entry with given id (which is unique).
-# Read all the entries with 'all' instead of number for post_id.
-def read_post(post_id):
+# Read all the entries with 'all' instead of number for get_id.
+def read_db(get_id):
     count = 0
     print('\nRead entry...')
-    if post_id == 'all':
+    if get_id == 'all':
         url = f"{BASE_URL}/configs"
     else:
-        url = f"{BASE_URL}/configs/{post_id}"
+        url = f"{BASE_URL}/configs/{get_id}"
 
     response = requests.get(url)
 
@@ -36,7 +36,7 @@ def read_post(post_id):
 
 # Delete the last entry of the DB.
 def clean_db():
-    entries = read_post('all')
+    entries = read_db('all')
     print(f'->DB has {entries} Satellite Configuration right now.')
     if entries > DEFAULT_DB_CONF:
         url = f"{BASE_URL}/configs"
@@ -173,7 +173,7 @@ def test_db_lookup(conf_id: int, status_code: int, outcome: str, message: str):
 # This test scenario verifies the req. "The service can store a maximum of `10` configurations at a time".
 # By default, the DB has 3 entries already.
 def test_max_data_entries(data: dict, status_code: int):
-    entries = read_post('all')
+    entries = read_db('all')
     print(f'->DB has {entries} Satellite Configuration right now.')
 
     url = f"{BASE_URL}/configs"
@@ -181,7 +181,7 @@ def test_max_data_entries(data: dict, status_code: int):
     response = requests.post(url, json=data)
     assert_response(response, '', status_code)
 
-    entries = read_post('all')
+    entries = read_db('all')
     print(f'->DB has {entries} Satellite Configuration.')
 
     assert entries <= MAX_CONF
@@ -220,24 +220,26 @@ def test_post_with_multiple_data(data_size: int, status_code: int):
     assert_response(response, '', status_code)
 
 
-@pytest.mark.parametrize("fields, status_code", [
-    ({}, 400),
-    ({"name": "MySpot0"}, 400),
-    ({"type": "OPTIC"}, 400),
-    ({"cospar_id": "1969-190AA"}, 400),
-    ({"name": "MySpot0", "cospar_id": "1969-190AA"}, 400),
-    ({"type": "OPTIC", "cospar_id": "1969-190AA"}, 400)
+@pytest.mark.parametrize("fields, message, status_code", [
+    ({}, 'invalid request due to cospar ID is required', 400),
+    ({"name": "MySpot0"}, 'invalid request due to cospar ID is required', 400),
+    ({"type": "OPTIC"}, 'invalid request due to cospar ID is required', 400),
+    ({"cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
+    ({"name": "MySpot0", "cospar_id": "1969-190AA"}, 'invalid request due to payload type is required', 400),
+    ({"type": "OPTIC", "cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
+    ({"name": " ", "type": "SAR", "cospar_id": "1969-190AA"}, '', 400) # corner case due to space string
 ])
 @pytest.mark.missing_mandatory_fields
 # Error injection: Test for empty or missing fields of configuration data in post create.
-def test_missing_mandatory_fields(fields: dict, status_code: int):
+# All fields are mandatory and can't be missing or have empty string.
+def test_missing_mandatory_fields_post(fields: dict, message: str, status_code: int):
     url = f"{BASE_URL}/configs"
     data = {} | fields
     print(f'=> {data}')
 
     # Send the data in one post create
     response = requests.post(url, json=data)
-    assert_response(response, '', status_code)
+    assert_response(response, message, status_code)
 
 
 @pytest.mark.parametrize("fields, status_code", [
@@ -247,7 +249,7 @@ def test_missing_mandatory_fields(fields: dict, status_code: int):
     ({"name": "MySpot0", "Jerry": "SAR", "Tom": "1969-190AA"}, 400),
     ({"name": "MySpot0", "typ": "SAR", "cospar_id": "1969-190AA", "type": "OPTICAL"}, 400),])
 @pytest.mark.invalid_data_values
-# Error injection: Test for invalid fields of configuration data in post create.
+# Error injection: Test for invalid field names of configuration data in post create.
 def test_invalid_data_values(fields: dict, status_code: int):
     clean_db()
     url = f"{BASE_URL}/configs"
