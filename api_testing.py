@@ -227,7 +227,8 @@ def test_post_with_multiple_data(data_size: int, status_code: int):
     ({"cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
     ({"name": "MySpot0", "cospar_id": "1969-190AA"}, 'invalid request due to payload type is required', 400),
     ({"type": "OPTIC", "cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
-    ({"name": " ", "type": "SAR", "cospar_id": "1969-190AA"}, '', 400) # corner case due to space string
+    ({"name": " ", "type": "SAR", "cospar_id": "1969-190AA"}, '', 400), # corner case due to space string
+    ({"name": "MySpot0", "type": " ", "cospar_id": "1969-190AA"}, '', 400)  # corner case due to space string
 ])
 @pytest.mark.missing_mandatory_fields
 # Error injection: Test for empty or missing fields of configuration data in post create.
@@ -248,9 +249,9 @@ def test_missing_mandatory_fields_post(fields: dict, message: str, status_code: 
     ({"name": "MySpot0", "type": "SAR", "copar_id": "1969-190AA"}, 400),
     ({"name": "MySpot0", "Jerry": "SAR", "Tom": "1969-190AA"}, 400),
     ({"name": "MySpot0", "typ": "SAR", "cospar_id": "1969-190AA", "type": "OPTICAL"}, 400),])
-@pytest.mark.invalid_data_values
+@pytest.mark.field_name_validation
 # Error injection: Test for invalid field names of configuration data in post create.
-def test_invalid_data_values(fields: dict, status_code: int):
+def test_field_name_validation(fields: dict, status_code: int):
     clean_db()
     url = f"{BASE_URL}/configs"
     data = {} | fields
