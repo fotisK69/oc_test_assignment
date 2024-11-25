@@ -12,13 +12,13 @@ DEFAULT_DB_CONF = 3
 MAX_DB_CONF = 10
 
 
-def read_post(post_id):
+def read_get(get_id):
     count = 0
     print('Read entry...')
-    if post_id == 'all':
+    if get_id == 'all':
         url = f"{BASE_URL}/configs"
     else:
-        url = f"{BASE_URL}/configs/{post_id}"
+        url = f"{BASE_URL}/configs/{get_id}"
 
     response = requests.get(url)
 
@@ -33,7 +33,7 @@ def read_post(post_id):
 
 
 def clean_db_default():
-    entries = read_post('all')
+    entries = read_get('all')
     print(f'DB entries: {entries}')
     while entries > DEFAULT_DB_CONF:
         url = f"{BASE_URL}/configs"
@@ -46,7 +46,7 @@ def clean_db_default():
         response = requests.delete(url)
         assert response.status_code == 200
 
-        entries = read_post('all')
+        entries = read_get('all')
 
 
 # Check that the binary server on port `1234` is up
@@ -72,14 +72,18 @@ def pytest_sessionstart():
     # Check that server is up at port 1234
     check_port_up(1234)
     # Start with 3 Satellite Configuration
-    entries = read_post('all')
-    print(f'DB entries (default): {entries}')
+    entries = read_get('all')
+    assert entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {entries}"
+    print(f'DB entries (default): {DEFAULT_DB_CONF}')
 
 
 @pytest.hookimpl(trylast=True)
 # Fixture for login, reusable across tests
 def pytest_sessionfinish():
     # Cleanup test data in DB Satellite Configuration Service
-    entries = read_post('all')
+    entries = read_get('all')
     print(f'DB entries (after test): {entries}')
     clean_db_default()
+    entries = read_get('all')
+    assert entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {entries}"
+    print(f'DB entries (after cleanup): {entries}')
