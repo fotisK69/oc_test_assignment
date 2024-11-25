@@ -14,27 +14,30 @@ This documentation provides an overview of the available endpoints, request and 
 * **Response:** A JSON array containing all satellite configuration objects.
 
 **Example Response:**
-```json
-[
-  {
-    "id": "1",
-    "name": "Optic Satellite One",
-    "type": "OPTIC",
-    "cospar_id": "2024-003ZZZ"
-  },
-  {
-    "id": "2",
-    "name": "Optic Satellite Two",
-    "type": "OPTIC",
-    "cospar_id": "2023-001ABC"
-  },
-  {
-    "id": "3",
-    "name": "Optic Satellite Three",
-    "type": "OPTIC",
-    "cospar_id": "2050-002ZZZ"
-  }
-]
+```JSON: {
+    "meta": null,
+    "data": [
+        {
+            "id": 1,
+            "name": "Satellite1",
+            "type": "OPTICAL",
+            "cospar_id": "2024-003ZZ"
+        },
+        {
+            "id": 2,
+            "name": "Satellite2",
+            "type": "OPTICAL",
+            "cospar_id": "2023-001BC"
+        },
+        {
+            "id": 3,
+            "name": "Satellite3",
+            "type": "SAR",
+            "cospar_id": "2050-002ZZ"
+        }
+    ],
+    "errors": null
+}
 
 ```
 
@@ -46,7 +49,7 @@ This documentation provides an overview of the available endpoints, request and 
 
 * **Method:** GET
 * **URL:** /configs/{id}
-    * `id` is a unique string identifier for the mission.
+    * `id` is a unique integer identifier for the mission.
 * **Response:** JSON object containing the satellite configuration details.
 
 
@@ -58,10 +61,10 @@ This documentation provides an overview of the available endpoints, request and 
 
 ```json
 {
-  "id": "1",
+  "id": 1,
   "name": "Optic Satellite One",
-  "type": "OPTIC",
-  "cospar_id": "2024-003ZZZ"
+  "type": "OPTICAL",
+  "cospar_id": "2024-003ZZ"
 }
 
 ```
@@ -70,23 +73,23 @@ This documentation provides an overview of the available endpoints, request and 
 
 ### POST /configs
 
-**Description:** Creates a new satellite configuration. The service can store a maximum of `10` configurations at a time. If this limit is exceeded, an error will be returned.
+**Description:** Creates a new satellite configuration. The service can store a maximum of `6` configurations at a time. If this limit is exceeded, an error will be returned.
 
 * **Method:** POST
 * **URL:** /configs
 * **Request Body:** JSON object with the following required fields:
 
-    * **cospar_id (string):** COSPAR identifier, must follow the pattern `YYYY-###XXX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XXX` is a three-letter identifier. This pattern applies for both creation and update requests.
+    * **cospar_id (string):** COSPAR identifier, must follow the pattern `YYYY-###XX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XX` is a two-letter identifier. This pattern applies for both creation and update requests.
     * **name (string):** Name of the mission.
-    * **payload_type (string):** Type of payload (e.g., "OPTIC", "SARS", "TELECOM").
+    * **payload_type (string):** Type of payload (e.g., "OPTICAL", "SAR", "TELECOM").
 
 **Example Request Body:**
 
 ```json
 {
-  "cospar_id": "2024-003ZZZ",
+  "cospar_id": "2024-003ZZ",
   "name": "New Satellite Mission",
-  "payload_type": "OPTIC"
+  "payload_type": "OPTICAL"
 }
 ```
 
@@ -96,7 +99,7 @@ This documentation provides an overview of the available endpoints, request and 
 
 ```json
 {
-  "message": "Mission configuration created successfully."
+  "message": "Mission config created successfully."
 }
 ```
 
@@ -108,7 +111,7 @@ This documentation provides an overview of the available endpoints, request and 
 
 * **Method:** DELETE
 * **URL:** /configs/{id}
-    * `id` is a unique string identifier for the mission.
+    * `id` is a unique integer identifier for the mission.
 * **Response:** Confirmation message indicating successful deletion.
 
 
@@ -120,7 +123,7 @@ This documentation provides an overview of the available endpoints, request and 
 
 ```json
 {
-  "message": "Mission configuration deleted successfully."
+  "message": "Mission config deleted successfully."
 }
 ```
 
@@ -132,20 +135,20 @@ This documentation provides an overview of the available endpoints, request and 
 
 * **Method:** PUT
 * **URL:** /configs/{id}
-    * `id` is a unique string identifier for the mission.
+    * `id` is a unique integer identifier for the mission.
 * **Request Body:** JSON object with any updatable fields:
-    * **cospar_id (string, optional)**: COSPAR identifier, must follow the pattern `YYYY-###XXX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XXX` is a three-letter identifier. This pattern applies for both creation and update requests.
+    * **cospar_id (string, optional)**: COSPAR identifier, must follow the pattern `YYYY-###XX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XX` is a two-letter identifier. This pattern applies for both creation and update requests.
     * **name (string, optional)**: Name of the mission.
-    * **payload_type (string, optional)**: Type of payload (e.g., "OPTIC", "SARS", "TELECOM").
+    * **payload_type (string, optional)**: Type of payload (e.g., "OPTICAL", "SAR", "TELECOM").
 
 
 **Example Request:**
 
 ```json
 {
-  "cospar_id": "2025-005XYZ",
+  "cospar_id": "2025-005XY",
   "name": "Updated Satellite Mission",
-  "payload_type": "SARS"
+  "payload_type": "SAR"
 }
 ```
 
@@ -155,6 +158,6 @@ This documentation provides an overview of the available endpoints, request and 
 
 ```json
 {
-  "message": "Mission configuration updated successfully."
+  "message": "Mission config updated successfully."
 }
 ```
