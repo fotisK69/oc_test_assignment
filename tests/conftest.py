@@ -10,7 +10,9 @@ TIMEOUT = 5000  # 5 seconds
 DEFAULT_WAIT_TIME = 5  # 30 seconds for responses
 
 # API base URL
-BASE_URL = "http://127.0.0.1:1234"
+BASE_URL = "http://127.0.0.1"
+HTTP_PORT = "1234"
+BASE_URL += ":" + HTTP_PORT
 DEFAULT_DB_CONF = 3
 MAX_DB_CONF = 10
 
@@ -19,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session", autouse=True)
+# Configure color for each log level and logging format.
 def configure_colored_logging():
     coloredlogs.install(
         level='DEBUG',
@@ -33,8 +36,9 @@ def configure_colored_logging():
     )
 
 
+# Read 'all' or only one db entry by giving the according id number.
 def read_get(get_id):
-    count = 0
+    db_entries = 0
     logger.info('Read entry...')
     if get_id == 'all':
         url = f"{BASE_URL}/configs"
@@ -47,16 +51,17 @@ def read_get(get_id):
         logger.info(f"Post Read successfully (status code): {response.status_code}")
         logger.info(f"-> Response JSON: {response.json()}")
         json_obj = response.json()
-        count = len(json_obj['data'])
+        db_entries = len(json_obj['data'])
     else:
         logger.error(f"Failed to read post. Status code: {response.status_code}")
-    return count
+    return db_entries
 
 
+# Clean the DB to the default number of entries.
 def clean_db_default():
-    entries = read_get('all')
-    logger.info(f'DB entries: {entries}')
-    while entries > DEFAULT_DB_CONF:
+    db_entries = read_get('all')
+    logger.info(f'DB entries: {db_entries}')
+    while db_entries > DEFAULT_DB_CONF:
         url = f"{BASE_URL}/configs"
         response = requests.get(url)
         json_obj = response.json()
@@ -67,7 +72,7 @@ def clean_db_default():
         response = requests.delete(url)
         assert response.status_code == 200
 
-        entries = read_get('all')
+        db_entries = read_get('all')
 
 
 # Check that the binary server on port `1234` is up
@@ -96,8 +101,8 @@ def assert_response(response, message, expected_code):
 # Fixture for login, reusable across tests
 def pytest_sessionstart():
     # Start with 3 Satellite Configuration
-    entries = read_get('all')
-    assert entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {entries}"
+    db_entries = read_get('all')
+    assert db_entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {db_entries}"
     logger.info(f'DB entries (default): {DEFAULT_DB_CONF}')
 
 
@@ -105,9 +110,9 @@ def pytest_sessionstart():
 # Fixture for login, reusable across tests
 def pytest_sessionfinish():
     # Cleanup test data in DB Satellite Configuration Service
-    entries = read_get('all')
-    logger.info(f'DB entries (after test): {entries}')
+    db_entries = read_get('all')
+    logger.info(f'DB entries (after test): {db_entries}')
     clean_db_default()
-    entries = read_get('all')
-    assert entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {entries}"
-    logger.info(f'DB entries (after cleanup): {entries}')
+    db_entries = read_get('all')
+    assert db_entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {db_entries}"
+    logger.info(f'DB entries (after cleanup): {db_entries}')
