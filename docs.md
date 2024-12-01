@@ -83,6 +83,8 @@ This documentation provides an overview of the available endpoints, request and 
     * **name (string):** Name of the mission.
     * **payload_type (string):** Type of payload (e.g., "OPTICAL", "SAR", "TELECOM").
 
+**All fields are mandatory**
+
 **Example Request Body:**
 
 ```json
@@ -141,6 +143,8 @@ This documentation provides an overview of the available endpoints, request and 
     * **name (string, optional)**: Name of the mission.
     * **payload_type (string, optional)**: Type of payload (e.g., "OPTICAL", "SAR", "TELECOM").
 
+**All fields are mandatory**
+
 
 **Example Request:**
 
@@ -161,3 +165,16 @@ This documentation provides an overview of the available endpoints, request and 
   "message": "Mission config updated successfully."
 }
 ```
+
+## ERROR Handling and responses (chapter is missing)
+
+### Error messages during post and put operations
+#### Invalid data values for fields cospar_id and type:
+* invalid request due to invalid COSPAR ID
+* invalid request due to invalid payload type
+#### Missing fields in the post/put request:
+(All fields are mandatory)
+* invalid request due to cospar ID is required
+* invalid request due to name is required
+* invalid request due to payload type is required
+
