@@ -79,9 +79,9 @@ This documentation provides an overview of the available endpoints, request and 
 * **URL:** /configs
 * **Request Body:** JSON object with the following required fields:
 
-    * **cospar_id (string):** COSPAR identifier, must follow the pattern `YYYY-###XX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XX` is a two-letter identifier. This pattern applies for both creation and update requests.
+    * **cospar_id (string):** COSPAR identifier, must follow the pattern `YYYY-###XX`, where `YYYY` is the launch year, `###` is a three-digit mission code, and `XX` is a two-letter (CAPS only) identifier. This pattern applies for both creation and update requests.
     * **name (string):** Name of the mission.
-    * **payload_type (string):** Type of payload (e.g., "OPTICAL", "SAR", "TELECOM").
+    * **payload_type (string):** Type of payload (e.g., "OPTICAL", "SAR", "TELECOM") (CAPS only).
 
 **All fields are mandatory**
 
@@ -178,3 +178,14 @@ This documentation provides an overview of the available endpoints, request and 
 * invalid request due to name is required
 * invalid request due to payload type is required
 
+## Frontend observations and improvements
+* Give hint in each input field what to insert especialy for "COSPAR ID" and "Payload Type".
+* Suggestion to have pull down list for "Payload Type" with the type that are allowed.
+* Text field for the result when searching for a "Get Configuration by ID". In the same page.
+* When creating now result is showing to the userr if successful or not.
+* No Update of existing configuration is poaaible via the web-page.
+* No possibility to get all the active configuration:
+  ERROR  [0423] A path was reached with no defined route: URL '/configs/?' method 'GET'  httpRequest="{GET /configs/? Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0 }"
+  {"meta":null,"data":null,"errors":[{"message":"'resource '/configs/?' of type 'page'' does not exist","source":"data-server"}]}
+* In case server is down and user tries to get or create a new configuration it will get a normal page "This site can’t be reached" without an indication/hint to check if the server is up.
+  It rather advises the user to check the internet and firewall.
