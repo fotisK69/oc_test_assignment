@@ -1,4 +1,5 @@
 import pytest
+import coloredlogs
 import logging
 import requests
 import socket
@@ -15,6 +16,21 @@ MAX_DB_CONF = 10
 
 # logging object
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_colored_logging():
+    coloredlogs.install(
+        level='DEBUG',
+        fmt='%(asctime)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)s)',
+        level_styles={
+            'debug': {'color': 'cyan'},
+            'info': {'color': 'green'},
+            'warning': {'color': 'yellow'},
+            'error': {'color': 'red'},
+            'critical': {'color': 'magenta'},
+        }
+    )
 
 
 def read_get(get_id):
