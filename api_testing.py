@@ -233,7 +233,7 @@ def test_post_with_multiple_data(data_size: int, status_code: int):
     ({"cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
     ({"name": "MySpot0", "cospar_id": "1969-190AA"}, 'invalid request due to payload type is required', 400),
     ({"type": "OPTIC", "cospar_id": "1969-190AA"}, 'invalid request due to name is required', 400),
-    ({"name": " ", "type": "SAR", "cospar_id": "1969-190AA"}, '', 400),  # corner case due to space string
+    ({"name": " ", "type": "SAR", "cospar_id": "1969-190AA"}, '', 400), # corner case due to space string
     ({"name": "MySpot0", "type": " ", "cospar_id": "1969-190AA"}, '', 400)  # corner case due to space string
 ])
 @pytest.mark.missing_mandatory_fields
