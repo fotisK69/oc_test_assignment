@@ -36,7 +36,7 @@ def configure_colored_logging():
     )
 
 
-# Read 'all' or only one db entry by giving the according id number.
+# Read 'all' or only one db entry by giving the id number.
 def read_get(get_id):
     db_entries = 0
     logger.info('Read entry...')
@@ -75,10 +75,10 @@ def clean_db_default():
         db_entries = read_get('all')
 
 
-# Check that the binary server on port `1234` is up
-def check_port_up(port):
+# Check that the binary server on port HTTP_PORT is up
+def check_port_up(http, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('127.0.0.1', port))
+    result = sock.connect_ex((http, port))
     logger.debug(result)
     assert result == 0, f'Server should listen on port {port}, but not found'
 
@@ -98,8 +98,10 @@ def assert_response(response, message, expected_code):
 
 
 @pytest.hookimpl(tryfirst=True)
-# Fixture for login, reusable across tests
+# Fixture for start up of testing (execute once at the start of the test suite).
 def pytest_sessionstart():
+    # Check that server is up at port HTTP_PORT
+    check_port_up(BASE_URL, HTTP_PORT)
     # Start with 3 Satellite Configuration
     db_entries = read_get('all')
     assert db_entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {db_entries}"
@@ -107,12 +109,14 @@ def pytest_sessionstart():
 
 
 @pytest.hookimpl(trylast=True)
-# Fixture for login, reusable across tests
+# Fixture for tear down testing (execute once at the end of the test suite).
 def pytest_sessionfinish():
-    # Cleanup test data in DB Satellite Configuration Service
+    # Read DB entries after testing.
     db_entries = read_get('all')
     logger.info(f'DB entries (after test): {db_entries}')
+    # Cleanup test data in DB Satellite Configuration Service to the default nummber of entries.
     clean_db_default()
+    # Read DB entries after cleaning DB.
     db_entries = read_get('all')
     assert db_entries == DEFAULT_DB_CONF, f"Expected {DEFAULT_DB_CONF}, but got {db_entries}"
     logger.info(f'DB entries (after cleanup): {db_entries}')
