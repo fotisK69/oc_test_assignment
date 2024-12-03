@@ -75,6 +75,7 @@ def clean_db_default():
         db_entries = read_get('all')
 
 
+# TODO: in case server not listening stop test execution
 # Check that the binary server on port HTTP_PORT is up
 def check_port_up(http, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
